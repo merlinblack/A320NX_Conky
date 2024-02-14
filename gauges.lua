@@ -19,6 +19,9 @@ function conky_main()
                                        conky_window.width,
                                        conky_window.height)
   cr = cairo_create (cs)
+
+  draw_bg(cr)
+
   cpu = tonumber(conky_parse('$cpu'))
   ram = tonumber(conky_parse('$memperc'))
   if cpu < prev_cpu then prev_cpu = prev_cpu - 1 end
@@ -33,8 +36,8 @@ function conky_main()
 
   gauges = {
     {
-      x = 70,
-      y = 260,
+      x = 180,
+      y = 230,
       value = prev_cpu,
       danger_value = 90.0,
       max_value = 100,
@@ -42,8 +45,8 @@ function conky_main()
       label = 'CPU'
     },
     {
-      x = 250,
-      y = 260,
+      x = 385,
+      y = 230,
       value = prev_ram,
       danger_value = 90.0,
       max_value = 100,
@@ -86,8 +89,30 @@ function arc( cr, start_angle, end_angle, x, y, radius )
 		deg_to_rad(start_angle), deg_to_rad(end_angle))
 end
 
+function draw_bg(cr)
+    local corner_r = 45
+	local w=conky_window.width
+	local h=conky_window.height
+    local bg_colour=0x000000
+    local bg_alpha = 0.3
+
+	cairo_move_to(cr,corner_r,0)
+	cairo_line_to(cr,w-corner_r,0)
+	cairo_curve_to(cr,w,0,w,0,w,corner_r)
+	cairo_line_to(cr,w,h-corner_r)
+	cairo_curve_to(cr,w,h,w,h,w-corner_r,h)
+	cairo_line_to(cr,corner_r,h)
+	cairo_curve_to(cr,0,h,0,h,0,h-corner_r)
+	cairo_line_to(cr,0,corner_r)
+	cairo_curve_to(cr,0,0,0,0,corner_r,0)
+	cairo_close_path(cr)
+
+	cairo_set_source_rgba(cr,colour(bg_colour,bg_alpha))
+	cairo_fill(cr)
+end
+
 function gauge( cr, g )
-  radius = 40
+  radius = 60
   start_angle = 220
   end_angle = 70
   range = end_angle - start_angle + 360
@@ -111,8 +136,8 @@ function gauge( cr, g )
   cairo_move_to( cr, polar( g.x, g.y, danger_angle, radius-4) )
   cairo_line_to( cr, polar( g.x, g.y, danger_angle, radius+4) )
   cairo_stroke( cr )
-  text(cr, g.x+10, g.y+radius*1/4, g.value_text, 12, LIGHTBLUE, 1 )
-  text(cr, g.x+10+radius, g.y, g.label, 16, WHITE, 1 )
+  text(cr, g.x+10, g.y+radius*1/4, g.value_text, 16, LIGHTBLUE, 1 )
+  text(cr, g.x+10+radius, g.y, g.label, 18, WHITE, 1 )
 end
 
 function text( cr, x, y, text, size, text_color, text_alpha, font )
